@@ -1,0 +1,72 @@
+.dino-resource-bar { width: 100%; display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; position: relative; z-index: 50; }
+.dino-resource-item { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 34px; padding: 5px 10px; border-radius: 999px; background: linear-gradient(145deg, rgba(255,255,255,0.09), rgba(0,0,0,0.18)); border: 1px solid rgba(255,255,255,0.10); box-shadow: 0 5px 16px rgba(0,0,0,0.18); backdrop-filter: blur(8px); user-select: none; }
+.dino-resource-icon { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
+.dino-resource-amount { font-size: 15px; line-height: 1; font-weight: 800; white-space: nowrap; }
+.dino-resource-name { font-size: 10px; line-height: 1; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap; }
+
+.dino-gacha-stage { position:relative; width:100%; height:100%; min-height:500px; display:flex; align-items:center; justify-content:center; overflow:visible; }
+.dino-gacha-button, .dino-buy-button { display:flex; flex-direction:column; align-items:center; justify-content:center; width:min(460px,92%); min-height:62px:62px; border:none; border-radius:13px; padding:10px 32px; font-size:19px; font-weight:800; transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.3s ease; white-space:nowrap; cursor: pointer; }
+.dino-gacha-button:hover, .dino-buy-button:hover { transform:translateY(-2px); }
+.dino-gacha-button:active, .dino-buy-button:active { transform:translateY(0); }
+.dino-gacha-button { background:linear-gradient(135deg, #7c4dff, #512da8); color:white; box-shadow:0 8px 24px rgba(81,45,168,0.4); }
+.dino-buy-button { background:linear-gradient(135deg, #2196f3, #1565c0); color:white; box-shadow:0 8px 24px rgba(21,101,192,0.4); }
+
+.dino-gacha-result { display:grid; grid-template-columns:minmax(300px,1.25fr) minmax(220px,0.75fr); align-items:center; justify-content:center; gap:24px; width:100%; max-width:760px; animation:dinoGachaAppear 0.35s ease; }
+.dino-gacha-left-card { display:flex; justify-content:center; align-items:center; transform:scale(1.08); transform-origin:center center; }
+.dino-gacha-right-panel { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; width:100%; max-width:270px; }
+
+.evo-chain-container { display: flex; align-items: center; justify-content: center; width: 100%; margin-bottom: 5px; }
+.evo-chain-box { position: relative; display: flex; align-items: center; justify-content: center; width: 105px; height: 105px; padding: 4px; border-radius: 14px; background: linear-gradient(145deg, rgba(255,255,255,0.07), rgba(0,0,0,0.2)); border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 10px 28px rgba(0,0,0,0.2); overflow: hidden; z-index: 2; }
+.evo-chain-img, .evo-chain-frame { width: 90px; height: 90px; object-fit: contain; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.evo-chain-img { z-index: 1; } .evo-chain-frame { z-index: 2; pointer-events: none; }
+.evo-chain-link { width: 40px; height: 12px; background: repeating-linear-gradient(90deg, #666, #666 4px, #333 4px, #333 8px); border-top: 1px solid #888; border-bottom: 1px solid #111; margin: 0 -8px; z-index: 1; box-shadow: 0 3px 6px rgba(0,0,0,0.5); transform: translateY(-10px); }
+.evo-fallback-black { width: 75px; height: 75px; background: #080808; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: inset 0 0 10px #000; z-index: 1; }
+.evo-fallback-gold { width: 75px; height: 75px; background: radial-gradient(circle at 35% 35%, #fffacd, #ffd700 45%, #b8860b 80%); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: inset 0 -3px 10px rgba(0,0,0,0.4), 0 0 15px rgba(255,215,0,0.3); z-index: 1; }
+
+.dino-gacha-stats-card { width:100%; padding:14px; box-sizing:border-box; border:1px solid rgba(255,255,255,0.12); border-radius:12px; background:linear-gradient(145deg, rgba(255,255,255,0.06), rgba(0,0,0,0.18)); box-shadow:0 10px 30px rgba(0,0,0,0.2); text-align:center; }
+.dino-gacha-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.dino-gacha-stat { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; padding:8px 4px; border-radius:8px; background:rgba(255,255,255,0.05); }
+.dino-gacha-stat-icon { width:19px; height:19px; object-fit:contain; }
+.dino-gacha-stat-label { font-size:9px; text-transform:uppercase; letter-spacing:0.8px; opacity:0.6; }
+.dino-gacha-costs { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; }
+.dino-gacha-cost { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:8px 10px; border-radius:9px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); flex:1; }
+.dino-gacha-cost-label { font-size:9px; text-transform:uppercase; letter-spacing:0.7px; opacity:0.6; }
+.dino-gacha-cost-value { font-size:13px; font-weight:700; white-space:nowrap; }
+
+@keyframes statsFlicker { 0%, 100% { opacity: 0.9; text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); } 50% { opacity: 0.3; text-shadow: none; } }
+.dino-stat-flicker { color: #ffd700; animation: statsFlicker 3s ease-in-out infinite; margin-left: 4px; font-size: 13px; font-weight: 800; }
+@keyframes dinoGachaAppear { from { opacity:0; transform:translateY(10px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+/* Left Card Effects */
+@keyframes cardSparkle1 { 0%,100% { opacity:0.08; transform:scale(0.4); } 15% { opacity:1; transform:scale(1.55); } 30% { opacity:0.2; transform:scale(0.65); } }
+@keyframes cardSparkle2 { 0%,100% { opacity:0.08; transform:scale(0.4); } 20% { opacity:0.95; transform:scale(1.45); } 35% { opacity:0.15; transform:scale(0.6); } }
+@keyframes cardLightSweep { 0% { left:-115%; top:145%; opacity:0; } 2% { opacity:0.85; } 16% { left:120%; top:-115%; opacity:0; } 100% { left:120%; top:-115%; opacity:0; } }
+
+/* Blackhole Structure */
+.dino-bh-root { position:relative; width:260px; height:260px; transform:scale(1); transform-origin:center; overflow:visible; }
+.dino-bh-glow { position:absolute; left:50%; top:50%; width:205px; height:205px; border-radius:50%; transform: translate(-50%,-50%); border: 2px solid rgba(245,245,245,0.55); box-shadow: 0 0 18px rgba(255,255,255,0.15), 0 0 45px rgba(255,255,255,0.06), inset 0 0 28px rgba(255,255,255,0.08); z-index:2; }
+.dino-bh-disk { position:absolute; left:50%; top:50%; width:220px; height:76px; transform: translate(-50%,-50%) rotate(-18deg); border-radius:50%; border: 9px solid rgba(235,235,235,0.82); box-shadow: 0 0 10px rgba(255,255,255,0.24), 0 0 30px rgba(255,255,255,0.10), inset 0 0 10px rgba(0,0,0,0.6); z-index:5; }
+.dino-bh-core { position:absolute; left:50%; top:50%; width:100px; height:100px; border-radius:50%; transform: translate(-50%,-50%); background: radial-gradient(circle, #000 0%, #000 55%, #050507 75%, #111 100%); box-shadow: 0 0 16px rgba(255,255,255,0.18), 0 0 38px rgba(255,255,255,0.08); z-index:10; }
+.dino-bh-inner-ring { position:absolute; left:50%; top:50%; width:125px; height:125px; border-radius:50%; transform: translate(-50%,-50%); border: 3px solid rgba(255,255,255,0.38); box-shadow: inset 0 0 18px rgba(255,255,255,0.12); z-index:7; pointer-events:none; }
+.dino-bh-orbit { position:absolute; left:50%; top:50%; width:100%; height:100%; border-radius:50%; transform: translate(-50%,-50%); animation: dinoBhOrbitOuter 5.5s linear infinite; z-index:8; overflow:visible; }
+.dino-bh-orbit.inner { width:82%; height:82%; animation: dinoBhOrbitInner 3.7s linear infinite; }
+.dino-bh-orbit.outer { width:125%; height:125%; animation: dinoBhOrbitOuter 8s linear infinite; }
+.dino-bh-particle { position:absolute; width:8px; height:8px; border-radius:50%; background: radial-gradient(circle at 30% 30%, #fff 0%, #d8d8d8 38%, #747474 75%, #222 100%); box-shadow: 0 0 8px rgba(255,255,255,0.45); }
+.dino-bh-particle.large { width:12px; height:12px; } .dino-bh-particle.small { width:5px; height:5px; }
+
+@keyframes dinoBhOrbitOuter { from { transform: translate(-50%,-50%) rotate(0deg); } to { transform: translate(-50%,-50%) rotate(360deg); } }
+@keyframes dinoBhOrbitInner { from { transform: translate(-50%,-50%) rotate(360deg); } to { transform: translate(-50%,-50%) rotate(-360deg); } }
+
+.dino-bh-root.rolling .dino-bh-particle { background: radial-gradient(circle at 30% 30%, #fff 0%, var(--dino-bh-bright) 35%, var(--dino-bh-color) 68%, var(--dino-bh-deep) 100%); box-shadow: 0 0 9px var(--dino-bh-soft); }
+.dino-bh-root.rolling .dino-bh-glow { border-color: var(--dino-bh-bright); box-shadow: 0 0 20px var(--dino-bh-soft), 0 0 55px var(--dino-bh-deep), inset 0 0 30px var(--dino-bh-soft); }
+.dino-bh-root.rolling .dino-bh-disk { border-color: var(--dino-bh-bright); box-shadow: 0 0 14px var(--dino-bh-soft), 0 0 40px var(--dino-bh-deep), inset 0 0 12px rgba(0,0,0,0.7); }
+.dino-bh-flash { position:absolute; left:50%; top:50%; width:60px; height:60px; border-radius:50%; transform: translate(-50%,-50%) scale(0); background: radial-gradient(circle, #fff 0%, #fff 12%, var(--dino-bh-bright) 24%, var(--dino-bh-color) 43%, rgba(255,255,255,0) 78%); opacity:0; z-index:100; pointer-events:none; overflow:visible; }
+@keyframes dinoBhFlash { 0% { opacity:0; transform: translate(-50%,-50%) scale(0.05); } 10% { opacity:1; transform: translate(-50%,-50%) scale(0.55); } 25% { opacity:1; transform: translate(-50%,-50%) scale(2.4); } 50% { opacity:1; transform: translate(-50%,-50%) scale(9); } 75% { opacity:1; transform: translate(-50%,-50%) scale(22); } 100% { opacity:1; transform: translate(-50%,-50%) scale(42); } }
+
+.dino-gacha-result.is-dissolving { animation: dissolveResult 0.65s ease-in forwards; }
+.dino-gacha-result.is-dissolving .dino-gacha-left-card { animation: dissolveCard 0.65s ease-in forwards; }
+.dino-gacha-result.is-dissolving .dino-gacha-right-panel { animation: dissolveRight 0.6s ease-in forwards; }
+
+@keyframes dissolveResult { 0% { opacity:1; filter: blur(0) brightness(1); transform: scale(1); } 35% { opacity:0.8; filter: blur(1px) brightness(1.5); transform: scale(1.01); } 70% { opacity:0.35; filter: blur(4px) brightness(2); transform: scale(0.98); } 100% { opacity:0; filter: blur(14px) brightness(3); transform: scale(0.94); } }
+@keyframes dissolveCard { 0% { filter: brightness(1) blur(0); transform: scale(1.08) translateY(0); } 50% { filter: brightness(1.8) blur(3px); transform: scale(1.10) translateY(-4px); } 100% { filter: brightness(3) blur(12px); transform: scale(0.96) translateY(-14px); } }
+@keyframes dissolveRight { 0% { filter: blur(0); transform: translateX(0); } 50% { filter: blur(3px) brightness(1.8); transform: translateX(5px); } 100% { filter: blur(12px) brightness(2.5); transform: translateX(15px); } }

@@ -1,0 +1,27 @@
+{
+    "elemental_time": {
+        "golden": {
+            "amount": 7520.14,
+            "unit": "seconds",
+            "data_type": "duration",
+            "description": "A measure of time in the elemental realm.",
+            "icon": "https://static.vecteezy.com/system/resources/previews/034/089/782/non_2x/shopping-clock-or-stock-time-or-sale-hours-simple-gold-icon-for-apps-and-websites-vector.jpg"
+        }
+    },
+    "orbs": {
+        "purple_orb": {
+            "amount": 9999824,
+            "unit": "orbs",
+            "data_type": "currency",
+            "description": "A mystical currency used in the elemental realm.",
+            "icon": "https://static.vecteezy.com/system/resources/previews/034/089/782/non_2x/shopping-clock-or-stock-time-or-sale-hours-simple-gold-icon-for-apps-and-websites-vector.jpg"
+        },
+        "red_orb": {
+            "amount": 40,
+            "unit": "orbs",
+            "data_type": "currency",
+            "description": "A mystical currency used in the elemental realm.",
+            "icon": "https://static.vecteezy.com/system/resources/previews/034/089/782/non_2x/shopping-clock-or-stock-time-or-sale-hours-simple-gold-icon-for-apps-and-websites-vector.jpg"
+        }
+    }
+}

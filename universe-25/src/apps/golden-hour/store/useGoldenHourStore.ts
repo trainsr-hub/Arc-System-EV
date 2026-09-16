@@ -16,18 +16,19 @@ import { persistVault, logAuditEvent } from '../../../core/syncEngine';
 
 // =============================================================================
 // HAZARD LEVEL MATHEMATICAL FORMULA
-// y = 1.5 * ln(x + 1), where x is golden hours (clamped >= 0)
+// hazard = ln(x + 1), where x is golden hours (timeSeconds / 3600, clamped >= 0)
 // =============================================================================
 
 export function calculateHazardLevel(goldenHours: number): number {
   if (goldenHours < 0) return 0;
-  return Math.round(1.5 * Math.log(goldenHours + 1) * 100) / 100;
+  return Math.round(Math.log(goldenHours + 1) * 100) / 100;
 }
 
-export function calculateHazardFromTime(timeBalanceSeconds: number): { goldenHours: number; hazardLevel: number } {
-  const goldenHours = Math.max(0, timeBalanceSeconds / 3600);
+export function calculateHazardFromTime(timeBalanceSeconds: number): { timeSeconds: number; goldenHours: number; hazardLevel: number } {
+  const timeSeconds = Math.max(0, timeBalanceSeconds);
+  const goldenHours = timeSeconds / 3600;
   const hazardLevel = calculateHazardLevel(goldenHours);
-  return { goldenHours, hazardLevel };
+  return { timeSeconds, goldenHours, hazardLevel };
 }
 
 // =============================================================================

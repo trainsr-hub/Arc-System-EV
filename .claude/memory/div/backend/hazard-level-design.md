@@ -7,18 +7,18 @@ keys:
   - div:game:golden_hour
   - div:ui:gate_of_babylon
   - core:codex
-description: "Hazard Level is a personal odometer (just <a.b>), no rank tiers. Rank tiers are only for collection items. Formula: y = 1.5 * ln(x+1), floor 0."
+description: "Hazard Level is a personal odometer (just <a.b>), no rank tiers. Rank tiers are only for collection items. Formula: y = ln(x+1), floor 0."
 metadata:
   node_type: memory
   type: project
   originSessionId: 5313ccb3-6f35-4ef6-9d87-013d6a233473
-  modified: 2026-09-03T15:14:26.392Z
+  modified: 2026-09-15T10:33:54.220Z
 ---
 
 # Hazard Level Design
 
 ## Personal Hazard Level (Account Level)
-- **Formula**: `y = 1.5 * ln(x + 1)`, where `x` = Golden Hours (derived dynamically as `Universal Time (seconds) / 3600`). If `x < 0`, `y = 0.0`.
+- **Formula**: `y = ln(x + 1)`, where `x` = Golden Hours (derived dynamically as `Universal Time (seconds) / 3600`). If `x < 0`, `y = 0.0`.
 - **Display**: Simple decimal `<a.b>` (e.g., `4.7`, `11.3`). No rank title, no tier badge, no label.
 - **Practical ceiling**: ~15.0 (represents ~10 years of sustained 6hr/day effort). Not a hard cap, just where human ambition realistically tops out.
 - **Philosophy**: A quiet personal odometer. The user sees the number and knows what it cost. No external validation, no "stuck at rank X" frustration.

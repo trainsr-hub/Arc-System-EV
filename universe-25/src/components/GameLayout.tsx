@@ -27,6 +27,7 @@ export interface GameLayoutProps {
     angelRollTickets?: number
     [key: string]: any
   }
+  headerRight?: React.ReactNode
   showBackButton?: boolean
   backButton?: boolean | string
   onBackClick?: () => void
@@ -46,6 +47,7 @@ export function GameLayout({
   activeTab,
   onTabChange,
   globalInfo,
+  headerRight,
   showBackButton = false,
   backButton,
   onBackClick,
@@ -114,51 +116,36 @@ export function GameLayout({
               </div>
             </div>
 
-            {/* Center/Right Side: Global Info and Theme */}
+            {/* Center/Right Side: Custom Header Right OR Default Global Info & Theme */}
             <div className="flex items-center gap-4 text-xs font-mono text-[#9c93a8] flex-wrap">
-              {/* Global Info Display (Hazard Level, Time, Discs, Tickets, etc.) */}
-              {globalInfo && (
-                <div className="flex items-center gap-3">
-                  {globalInfo.hazardLevel !== undefined && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] font-mono uppercase text-[#8c7a9e] tracking-wider">
-                        Hazard
-                      </span>
-                      <span className="text-sm font-mono font-black text-[#ffd86b]">
-                        {globalInfo.hazardLevel.toFixed(2)}
-                      </span>
+              {headerRight ? (
+                headerRight
+              ) : (
+                <>
+                  {globalInfo && (
+                    <div className="flex items-center gap-3">
+                      {globalInfo.discs !== undefined && (
+                        <div className="flex items-center gap-2 bg-[#14101c] px-3.5 py-1.5 rounded-xl border border-[#2e2638] text-xs font-mono font-bold text-[#ffd86b] shadow-sm">
+                          <Disc3 className="w-4 h-4 text-[#ffd86b]" />
+                          <span>{globalInfo.discs} Discs</span>
+                        </div>
+                      )}
+                      {(globalInfo.tickets !== undefined || globalInfo.angelRollTickets !== undefined) && (
+                        <div className="flex items-center gap-2 bg-[#1c1424] px-3.5 py-1.5 rounded-xl border border-[#4a3461] text-xs font-mono font-bold text-[#c084fc] shadow-sm">
+                          <Ticket className="w-4 h-4 text-[#c084fc]" />
+                          <span>{globalInfo.tickets ?? globalInfo.angelRollTickets} Tickets</span>
+                        </div>
+                      )}
                     </div>
                   )}
-                  {globalInfo.goldenHours !== undefined && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] font-mono uppercase text-[#8c7a9e] tracking-wider">
-                        Time
-                      </span>
-                      <span className="text-sm font-mono font-bold text-white">
-                        {globalInfo.goldenHours.toFixed(1)} hrs
-                      </span>
-                    </div>
-                  )}
-                  {globalInfo.discs !== undefined && (
-                    <div className="flex items-center gap-2 bg-[#14101c] px-3.5 py-1.5 rounded-xl border border-[#2e2638] text-xs font-mono font-bold text-[#ffd86b] shadow-sm">
-                      <Disc3 className="w-4 h-4 text-[#ffd86b]" />
-                      <span>{globalInfo.discs} Discs</span>
-                    </div>
-                  )}
-                  {(globalInfo.tickets !== undefined || globalInfo.angelRollTickets !== undefined) && (
-                    <div className="flex items-center gap-2 bg-[#1c1424] px-3.5 py-1.5 rounded-xl border border-[#4a3461] text-xs font-mono font-bold text-[#c084fc] shadow-sm">
-                      <Ticket className="w-4 h-4 text-[#c084fc]" />
-                      <span>{globalInfo.tickets ?? globalInfo.angelRollTickets} Tickets</span>
-                    </div>
-                  )}
-                </div>
-              )}
 
-              {/* Theme Display */}
-              <div className="flex items-center gap-2 pl-4 border-l border-[#2d2438]">
-                <span>Theme:</span>
-                <span className="font-bold text-[#ffd86b]">{activeThemeId}</span>
-              </div>
+                  {/* Theme Display */}
+                  <div className="flex items-center gap-2 pl-4 border-l border-[#2d2438]">
+                    <span>Theme:</span>
+                    <span className="font-bold text-[#ffd86b]">{activeThemeId}</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

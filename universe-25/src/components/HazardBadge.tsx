@@ -142,8 +142,14 @@ export const HazardBadge: FC<HazardBadgeProps> = ({
   showDetails = false,
   className = '',
 }) => {
-  const finalScore = isNaN(score) ? 3.0 : score;
+  const finalScore = isNaN(score) ? 0 : score;
   const determinedRank = (rank || getRankFromScore(finalScore)) as GlobalRankTier;
+
+  // Only display rank badges for tiers that have been unlocked (D through ✦)
+  if (determinedRank === 'F') {
+    return null;
+  }
+
   const meta = RANK_THEMATIC_REGISTRY[determinedRank] || RANK_THEMATIC_REGISTRY['C'];
 
   const sizeClasses = {

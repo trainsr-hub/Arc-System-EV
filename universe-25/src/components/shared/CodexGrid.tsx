@@ -40,7 +40,7 @@ export const CodexGrid: React.FC<CodexGridProps> = ({
         {paginatedItems.map((item) => (
           <div
             key={item.id}
-            className="flex items-center justify-between p-4 rounded-xl border transition-all duration-300 hover:border-[#524124] hover:shadow-gold-sm cursor-pointer"
+            className="flex items-center justify-between p-4 rounded-xl border transition-[border-color,box-shadow,transform] duration-75 ease-out hover:border-[#524124] hover:shadow-gold-sm cursor-pointer active:scale-[0.99] select-none"
             onClick={() => onItemClick && onItemClick(item)}
           >
             {/* Left */}

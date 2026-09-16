@@ -7,6 +7,7 @@ interface EvoAvatarProps extends React.HTMLAttributes<HTMLDivElement> {
     isUnlocked?: boolean;
     showLockOverlay?: boolean;
     fallbackType?: 'black' | 'gold' | null;
+    borderRadius?: string;
 }
 
 export const EvoAvatar = React.forwardRef<HTMLDivElement, EvoAvatarProps>(({
@@ -16,6 +17,7 @@ export const EvoAvatar = React.forwardRef<HTMLDivElement, EvoAvatarProps>(({
     isUnlocked = true,
     showLockOverlay = true,
     fallbackType = null,
+    borderRadius = '10px',
     style,
     className = '',
     ...rest
@@ -31,24 +33,25 @@ export const EvoAvatar = React.forwardRef<HTMLDivElement, EvoAvatarProps>(({
                 position: 'relative',
                 width: `${size}px`,
                 height: `${size}px`,
-                borderRadius: '50%',
+                borderRadius,
+                overflow: 'hidden',
                 ...style
             }}
             {...rest}
         >
             {/* Dino Image or Fallback */}
             {imageUrl ? (
-                <img loading="lazy" src={imageUrl} width={size} height={size} style={{ position: 'absolute', bottom: 0, left: 0, ...filterStyle }} alt="Evo Image" />
+                <img loading="lazy" src={imageUrl} width={size} height={size} style={{ position: 'absolute', bottom: 0, left: 0, objectFit: 'contain', ...filterStyle }} alt="Evo Image" />
             ) : (
                 fallbackType === 'black' ? (
-                    <div className="evo-fallback-black" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '83%', height: '83%' }}></div>
+                    <div className="evo-fallback-black" style={{ position: 'absolute', inset: '6%', borderRadius, background: '#080808' }}></div>
                 ) : fallbackType === 'gold' ? (
-                    <div className="evo-fallback-gold" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '83%', height: '83%' }}></div>
+                    <div className="evo-fallback-gold" style={{ position: 'absolute', inset: '6%', borderRadius, background: 'radial-gradient(circle at 35% 35%, #fffacd, #ffd700 45%, #b8860b 80%)' }}></div>
                 ) : null
             )}
 
             {/* Rarity Frame */}
-            <img loading="lazy" src={frameUrl} width={size} height={size} style={{ position: 'absolute', bottom: 0, left: 0, ...filterStyle, pointerEvents: 'none' }} alt="Frame" />
+            <img loading="lazy" src={frameUrl} width={size} height={size} style={{ position: 'absolute', bottom: 0, left: 0, objectFit: 'contain', ...filterStyle, pointerEvents: 'none' }} alt="Frame" />
 
             {/* Lock Icon */}
             {(!isUnlocked && showLockOverlay) && (

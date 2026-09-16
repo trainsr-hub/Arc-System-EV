@@ -3,10 +3,12 @@
   "name": "Universe 25 Core Engine",
   "log_enabled": true,
   "tiers": {
-    "state": { "filename": "state.json", "format": "json" },
-    "events": { "filename": "events.jsonl", "format": "jsonl" },
-    "inventory": { "filename": "inventory.json", "format": "json" },
-    "vault": { "filename": "vault.json", "format": "json" },
-    "farms": { "filename": "farms.json", "format": "json" }
+    "state": { "filename": "golden_hour/state.json", "format": "json" },
+    "events": { "filename": "golden_hour/events.jsonl", "format": "jsonl" },
+    "inventory": { "filename": "golden_hour/inventory.json", "format": "json" },
+    "vault": { "filename": "golden_hour/vault.json", "format": "json" },
+    "farms": { "filename": "golden_hour/farms.json", "format": "json" },
+    "arc_resources": { "filename": "arc_jurassic/resources.db", "format": "sqlite" },
+    "arc_progress": { "filename": "arc_jurassic/progress.db", "format": "sqlite" }
   }
 }

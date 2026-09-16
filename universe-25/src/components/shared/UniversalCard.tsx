@@ -32,8 +32,8 @@ export const UniversalCard: React.FC<UniversalCardProps> = ({
 }) => {
   return (
     <div
-      className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-300 hover:border-[#524124] hover:shadow-gold-sm ${className} ${
-        disabled ? 'opacity-50 cursor-not-allowed' : ''
+      className={`flex items-center justify-between p-4 rounded-xl border transition-[border-color,box-shadow,transform,opacity] duration-100 ease-out hover:border-[#524124] hover:shadow-gold-sm ${className} ${
+        disabled ? 'opacity-50 cursor-not-allowed' : onClick ? 'cursor-pointer active:scale-[0.99] select-none' : ''
       }`}
       onClick={!disabled && onClick ? onClick : undefined}
     >

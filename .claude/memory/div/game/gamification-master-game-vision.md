@@ -12,7 +12,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 5313ccb3-6f35-4ef6-9d87-013d6a233473
-  modified: 2026-09-03T15:32:45.154Z
+  modified: 2026-09-15T10:34:37.164Z
 ---
 
 # Gamification Architecture: Origin Worlds, Tickets, and Golden Hour (Master Game)
@@ -30,7 +30,7 @@ metadata:
 
 3. **Golden Hours, Hazard Level & Dynamic Stake Economy**:
    - **Universal Time (seconds) as Golden Hours**: $x = \text{timeBalance} / 3600$. Operating as the central economic anchor.
-   - **Personal Hazard Level Odometer**: Calculated dynamically via $y = 1.5 \cdot \ln(x + 1)$ ($x \ge 0$). Rendered strictly as an unranked decimal odometer $\langle a.b \rangle$. Spending time immediately reduces one's Hazard Level, creating real economic stakes.
+   - **Personal Hazard Level Odometer**: Calculated dynamically via $y = \ln(x + 1)$ ($x \ge 0$). Rendered strictly as an unranked decimal odometer $\langle a.b \rangle$. Spending time immediately reduces one's Hazard Level, creating real economic stakes.
    - **Rank Tiers Exclusively for Items**: Rank tiers (✦, ∅, Ψ, $\text{S}_4\text{--S}_1$, $\text{A}^+\text{--D}$, $\text{F}$) apply only to relics, equipment, and collectible treasures.
    - **Multi-Attribute Energy Cores (IoT Fuel)**: Gacha fillers across 5 elemental attributes (Solar, Void, Verdant, Celestial, Aether). Spent as fuel for IoT sessions and peripheral device feeds.
 

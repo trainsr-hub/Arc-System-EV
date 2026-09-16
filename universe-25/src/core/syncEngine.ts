@@ -1,11 +1,10 @@
-// path: src/core/syncEngine.ts
+// path: src/core/syncEngine.ts — Dynamic Plugin-Aware Sync Engine
+// Mandate: Authoritative Backend SQLite persistence for Game Resources & Progress.
 
 import { execute } from './api'
 import { useCurrencyStore } from '../store/useCurrencyStore'
 import { useInventoryStore } from '../store/useInventoryStore'
 import { useGoldenHourStore } from '../apps/golden-hour/store/useGoldenHourStore'
-import { useFarmAStore } from '../apps/farm-a/useFarmAStore'
-import { useFarmBStore } from '../apps/farm-b/useFarmBStore'
 import { useGlobalStore } from '../store/useGlobalStore'
 import type { Plot } from './types'
 import type { PullItem, ArenaSlot, EnergyReserves } from '../apps/golden-hour/types'
@@ -33,13 +32,36 @@ export interface BackendVaultData {
 }
 
 export interface BackendFarmsData {
-  farmA_plots?: Plot[]
-  farmB_plots?: Plot[]
+  [key: string]: Plot[] | undefined
 }
 
-/**
- * Log an audit event to the backend events.jsonl tier
- */
+export interface ArcResourceItem {
+  amount: number
+  unit?: string
+  name?: string
+  icon?: string
+  description?: string
+  updated_at?: string
+}
+
+export interface ArcResourcesMap {
+  jurassic_time?: ArcResourceItem
+  dna?: ArcResourceItem
+  red_orbs?: ArcResourceItem
+  [key: string]: ArcResourceItem | undefined
+}
+
+export interface ArcDinoProgressItem {
+  number: number
+  rank: number
+  ferocity?: number
+  updated_at?: string
+}
+
+export interface ArcProgressMap {
+  owned_dinos: Record<string, ArcDinoProgressItem>
+}
+
 export async function logAuditEvent(eventType: string, details: Record<string, unknown> = {}): Promise<void> {
   try {
     await execute('events', 'append', undefined, {
@@ -52,36 +74,24 @@ export async function logAuditEvent(eventType: string, details: Record<string, u
   }
 }
 
-/**
- * Persist global state (Time balance & user profile)
- */
 export async function persistState(data: BackendStateData): Promise<void> {
   const current = (await execute<BackendStateData>('state', 'read_all')).data || {}
   const merged = { ...current, ...data }
   await execute('state', 'overwrite', undefined, merged)
 }
 
-/**
- * Persist dimensional inventory & tickets
- */
 export async function persistInventory(data: BackendInventoryData): Promise<void> {
   const current = (await execute<BackendInventoryData>('inventory', 'read_all')).data || {}
   const merged = { ...current, ...data }
   await execute('inventory', 'overwrite', undefined, merged)
 }
 
-/**
- * Persist master game vault, relics, equipment, and energy reserves
- */
 export async function persistVault(data: BackendVaultData): Promise<void> {
   const current = (await execute<BackendVaultData>('vault', 'read_all')).data || {}
   const merged = { ...current, ...data }
   await execute('vault', 'overwrite', undefined, merged)
 }
 
-/**
- * Persist agrarian farm plots
- */
 export async function persistFarms(data: BackendFarmsData): Promise<void> {
   const current = (await execute<BackendFarmsData>('farms', 'read_all')).data || {}
   const merged = { ...current, ...data }
@@ -89,11 +99,86 @@ export async function persistFarms(data: BackendFarmsData): Promise<void> {
 }
 
 /**
- * Hydrates all stores from the authoritative backend storage engine.
- * Throws loudly if the backend is down or fails.
+ * Authoritative SQLite I/O for ARC Jurassic Resources
+ */
+export async function fetchArcResources(): Promise<ArcResourcesMap> {
+  const res = await execute<Record<string, ArcResourceItem>>('arc_resources', 'read_all')
+  const rows = res.data || {}
+  return {
+    jurassic_time: rows.jurassic_time || { amount: 14400, unit: 'seconds', name: 'Jurassic Time' },
+    dna: rows.dna || { amount: 50000, unit: 'dna', name: 'DNA' },
+    red_orbs: rows.red_orbs || { amount: 50, unit: 'orbs', name: 'Red Orbs' },
+  }
+}
+
+export async function persistArcResources(data: ArcResourcesMap): Promise<void> {
+  const payload: Record<string, any> = {}
+  const now = new Date().toISOString()
+
+  for (const [id, item] of Object.entries(data)) {
+    if (item && typeof item === 'object') {
+      payload[id] = {
+        amount: Number(item.amount || 0),
+        unit: item.unit || '',
+        name: item.name || id,
+        icon: item.icon || '',
+        description: item.description || '',
+        updated_at: now,
+      }
+    }
+  }
+
+  await execute('arc_resources', 'batch_upsert', undefined, payload)
+}
+
+/**
+ * Authoritative SQLite I/O for ARC Jurassic Dinosaur Progress & Total Army Ferocity
+ */
+export async function fetchArcProgress(): Promise<ArcProgressMap> {
+  const res = await execute<Record<string, { number: number; rank: number; ferocity?: number; updated_at?: string }>>('arc_progress', 'read_all')
+  const rows = res.data || {}
+  const owned_dinos: Record<string, ArcDinoProgressItem> = {}
+
+  for (const [uuid, d] of Object.entries(rows)) {
+    owned_dinos[uuid] = {
+      number: Number(d.number || 0),
+      rank: Number(d.rank || 0),
+      ferocity: Number(d.ferocity || 0),
+      updated_at: d.updated_at,
+    }
+  }
+
+  return { owned_dinos }
+}
+
+export async function persistArcProgress(progress: ArcProgressMap): Promise<void> {
+  const payload: Record<string, any> = {}
+  const now = new Date().toISOString()
+
+  for (const [uuid, d] of Object.entries(progress.owned_dinos || {})) {
+    payload[uuid] = {
+      number: Number(d.number || 0),
+      rank: Number(d.rank || 0),
+      ferocity: Number(d.ferocity || 0),
+      updated_at: now,
+    }
+  }
+
+  await execute('arc_progress', 'batch_upsert', undefined, payload)
+}
+
+export async function resetArcProgress(): Promise<void> {
+  const current = await fetchArcProgress()
+  const keys = Object.keys(current.owned_dinos || {})
+  if (keys.length > 0) {
+    await execute('arc_progress', 'batch_delete', undefined, keys)
+  }
+}
+
+/**
+ * Hydrates all master game stores from the authoritative backend storage engine.
  */
 export async function hydrateAllStores(): Promise<{ success: boolean }> {
-  // 1. Fetch all backend tiers in parallel
   const [stateRes, invRes, vaultRes, farmsRes] = await Promise.all([
     execute<BackendStateData>('state', 'read_all'),
     execute<BackendInventoryData>('inventory', 'read_all'),
@@ -106,21 +191,17 @@ export async function hydrateAllStores(): Promise<{ success: boolean }> {
   const vaultData = vaultRes.data || {}
   const farmsData = farmsRes.data || {}
 
-  // 2. Hydrate Currency Store (Time Balance)
   if (typeof stateData.timeBalance === 'number') {
     useCurrencyStore.setState({ timeBalance: stateData.timeBalance })
   } else {
-    // Initialize default time balance if missing on backend
     await persistState({ timeBalance: 3600 })
     useCurrencyStore.setState({ timeBalance: 3600 })
   }
 
-  // 3. Hydrate Global Profile
   if (stateData.userProfile) {
     useGlobalStore.setState({ userProfile: stateData.userProfile })
   }
 
-  // 4. Hydrate Inventory Store (Discs, Essence, Tickets)
   useInventoryStore.setState({
     discs: invData.discs ?? 0,
     solarEssence: invData.solarEssence ?? 0,
@@ -130,7 +211,6 @@ export async function hydrateAllStores(): Promise<{ success: boolean }> {
     codexRollTickets: invData.codexRollTickets ?? 0,
   })
 
-  // 5. Hydrate Golden Hour Store (Vault, Energy, Arena Slots, Pulls)
   useGoldenHourStore.setState((prev) => ({
     vault: vaultData.vault ?? prev.vault,
     arenaSlots: vaultData.arenaSlots ?? prev.arenaSlots,
@@ -138,15 +218,12 @@ export async function hydrateAllStores(): Promise<{ success: boolean }> {
     totalPulls: vaultData.totalPulls ?? prev.totalPulls,
   }))
 
-  // 6. Hydrate Farm Plots
-  if (farmsData.farmA_plots && Array.isArray(farmsData.farmA_plots)) {
-    useFarmAStore.setState({ plots: farmsData.farmA_plots })
-  }
-  if (farmsData.farmB_plots && Array.isArray(farmsData.farmB_plots)) {
-    useFarmBStore.setState({ plots: farmsData.farmB_plots })
+  for (const [key, plots] of Object.entries(farmsData)) {
+    if (key && Array.isArray(plots)) {
+      console.log(`[SyncEngine] Plugin farm tier loaded: ${key} (${plots.length} plots)`)
+    }
   }
 
-  // 7. Log successful hydration audit
   await logAuditEvent('SESSION_HYDRATED', {
     timeBalance: useCurrencyStore.getState().timeBalance,
     totalVaultItems: useGoldenHourStore.getState().vault.length,

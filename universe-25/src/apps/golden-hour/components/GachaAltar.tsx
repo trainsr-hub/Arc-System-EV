@@ -111,18 +111,16 @@ export const GachaAltar: React.FC = () => {
     setPulling(true);
     setRecentPull(null);
 
-    // Pull animation delay
-    setTimeout(() => {
-      const item = pullFromPack(type);
-      setPulling(false);
-      if (item) {
-        setRecentPull(item);
-        const rarityMeta = RARITY_TABLE[item.rarity];
-        showToast(`✨ Summoned [${rarityMeta.label}] ${item.name}!`, 'success');
-      } else {
-        showToast('Summoning failed.', 'error');
-      }
-    }, 600);
+    // Instant summoning execution with immediate feedback
+    const item = pullFromPack(type);
+    setPulling(false);
+    if (item) {
+      setRecentPull(item);
+      const rarityMeta = RARITY_TABLE[item.rarity];
+      showToast(`✨ Summoned [${rarityMeta.label}] ${item.name}!`, 'success');
+    } else {
+      showToast('Summoning failed.', 'error');
+    }
   };
 
   const selectedPack = PACKS.find((p) => p.ticketType === activePack) || PACKS[0];
@@ -191,9 +189,9 @@ export const GachaAltar: React.FC = () => {
           return (
             <SharedButton
               key={pack.ticketType}
-              className={`p-5 rounded-2xl border text-left transition-all duration-300 flex flex-col justify-between space-y-3 cursor-pointer relative overflow-hidden ${
+              className={`p-5 rounded-2xl border text-left transition-[border-color,box-shadow,transform] duration-75 flex flex-col justify-between space-y-3 cursor-pointer relative overflow-hidden ${
                 isSelected
-                  ? 'border-2 shadow-gold-md scale-[1.02]'
+                  ? 'border-2 shadow-gold-md scale-[1.01]'
                   : 'border-[#2b2238] bg-[#120f18] hover:border-[#4a3a5e] opacity-80'
               }`}
               style={{
@@ -276,7 +274,7 @@ export const GachaAltar: React.FC = () => {
           <SharedButton
             disabled={pulling || ticketCount < 1}
             onClick={() => handlePull(selectedPack.ticketType)}
-            className={`px-8 py-5 min-h-[64px] rounded-2xl font-cinzel font-black text-sm md:text-base flex items-center justify-center gap-3 transition-all duration-300 cursor-pointer active:scale-95 shadow-xl ${
+            className={`px-8 py-5 min-h-[64px] rounded-2xl font-cinzel font-black text-sm md:text-base flex items-center justify-center gap-3 transition-[transform,opacity,box-shadow] duration-75 cursor-pointer active:scale-[0.98] shadow-xl ${
               ticketCount >= 1 && !pulling
                 ? 'text-black shadow-gold-lg hover:brightness-110'
                 : 'bg-[#1a1424] text-[#685c78] border border-[#2b2238] cursor-not-allowed'

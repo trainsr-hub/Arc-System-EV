@@ -1,27 +1,23 @@
 {
-    "elemental_time": {
-        "golden": {
-            "amount": 7520.14,
-            "unit": "seconds",
-            "data_type": "duration",
-            "description": "A measure of time in the elemental realm.",
-            "icon": "https://static.vecteezy.com/system/resources/previews/034/089/782/non_2x/shopping-clock-or-stock-time-or-sale-hours-simple-gold-icon-for-apps-and-websites-vector.jpg"
-        }
+    "jurassic_time": {
+        "amount": 14400,
+        "unit": "seconds",
+        "name": "Jurassic Time",
+        "description": "Exclusive temporal incubation energy for Cretaceous genesis.",
+        "icon": "https://cdn.paleo.gg/games/jwtg/images/stats/speed.png"
     },
-    "orbs": {
-        "purple_orb": {
-            "amount": 9999824,
-            "unit": "orbs",
-            "data_type": "currency",
-            "description": "A mystical currency used in the elemental realm.",
-            "icon": "https://static.vecteezy.com/system/resources/previews/034/089/782/non_2x/shopping-clock-or-stock-time-or-sale-hours-simple-gold-icon-for-apps-and-websites-vector.jpg"
-        },
-        "red_orb": {
-            "amount": 40,
-            "unit": "orbs",
-            "data_type": "currency",
-            "description": "A mystical currency used in the elemental realm.",
-            "icon": "https://static.vecteezy.com/system/resources/previews/034/089/782/non_2x/shopping-clock-or-stock-time-or-sale-hours-simple-gold-icon-for-apps-and-websites-vector.jpg"
-        }
+    "dna": {
+        "amount": 50000,
+        "unit": "dna",
+        "name": "DNA",
+        "description": "Biological genetic currency for synthesizing standard dinosaurs and hybrids.",
+        "icon": "https://cdn.paleo.gg/games/jwtg/images/resource/dna.png"
+    },
+    "red_orbs": {
+        "amount": 50,
+        "unit": "orbs",
+        "name": "Red Orbs",
+        "description": "Apex celestial currency for synthesizing Super-Hybrids and Boss creatures.",
+        "icon": "https://cdn.paleo.gg/games/jwtg/images/hybrid-type/super-hybrid.png"
     }
 }

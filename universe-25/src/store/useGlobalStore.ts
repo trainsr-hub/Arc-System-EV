@@ -6,12 +6,14 @@ import { hydrateAllStores, persistState } from '../core/syncEngine'
 import { checkBackendHealth, getBackendStatus } from '../core/api'
 import type { AppManifest } from '../core/types'
 
-/** All apps registered in Universe 25. */
+/** All apps registered in Universe 25. Plugin folders in src/apps are discovered dynamically. */
 export const APP_REGISTRY: AppManifest[] = [
   { id: 'golden-hour', name: 'Golden Hour', icon: '✨', description: 'Universal Stake Nexus • Babylonian Altar' },
   { id: 'vinyl-angel', name: 'Vinyl Angel', icon: '💿', description: 'Autonomous Music Laboratory' },
   { id: 'arc-jurassic', name: 'ARC Jurassic', icon: '🦕', description: 'Dino Collector & Battler' },
   { id: 'template-game-tab', name: 'Template Game Tab', icon: '📦', description: 'Base Component for New Universe 25 Games' },
+  // Plugin architecture: deleted folders (farm-a, farm-b) should not crash the app.
+  // If restored, they are loaded as plugin tabs automatically.
 ]
 
 interface GlobalState {

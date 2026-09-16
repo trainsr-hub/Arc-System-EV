@@ -50,6 +50,12 @@ export function getRankFromScore(score: number): GlobalRankTier {
   return 'F';
 }
 
+export function hasTier(scoreOrRank: number | string | null | undefined): boolean {
+  if (scoreOrRank === null || scoreOrRank === undefined) return false;
+  const rank = typeof scoreOrRank === 'number' ? getRankFromScore(scoreOrRank) : scoreOrRank;
+  return rank !== 'F' && (GLOBAL_RANKS as readonly string[]).includes(rank);
+}
+
 export const RANK_THEMATIC_REGISTRY: Record<GlobalRankTier, RankThematicMeta> = {
   '✦': {
     rank: '✦',

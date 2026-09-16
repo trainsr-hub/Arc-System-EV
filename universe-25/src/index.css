@@ -84,9 +84,14 @@ body {
   box-shadow: 0 0 10px var(--glow);
 }
 
-/* Smooth Transitions */
+/* Smooth Hardware-Accelerated Micro-Transitions */
 button, a, .interactive {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: color 0.08s ease-out, background-color 0.08s ease-out, border-color 0.08s ease-out, transform 0.06s ease-out, opacity 0.08s ease-out, box-shadow 0.08s ease-out;
+  user-select: none;
+}
+
+button:active:not(:disabled), .interactive:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 /* Backdrop Gradient - Gate of Babylon Style */
@@ -104,7 +109,7 @@ button, a, .interactive {
 /* Card Hover Effects - Golden Border Glow */
 .card-glow, .golden-border-glow {
   border: 1px solid var(--border);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: border-color 0.1s ease-out, box-shadow 0.1s ease-out, transform 0.1s ease-out;
 }
 
 .card-glow:hover, .golden-border-glow:hover {
@@ -193,6 +198,111 @@ button, a, .interactive {
   animation: success-pulse 2s infinite ease-in-out;
 }
 
+/* ============================================================================= */
+/* IDE TOP-RIGHT HUD CSS ANIMATIONS — GATE OF BABYLON CYBER-IMPERIAL TELEMETRY  */
+/* ============================================================================= */
+
+@keyframes ide-hud-border-glow {
+  0%, 100% {
+    border-color: rgba(212, 175, 55, 0.45);
+    box-shadow: 0 0 18px rgba(212, 175, 55, 0.25), inset 0 0 12px rgba(212, 175, 55, 0.08);
+  }
+  50% {
+    border-color: rgba(255, 216, 107, 0.9);
+    box-shadow: 0 0 28px rgba(212, 175, 55, 0.45), 0 0 50px rgba(132, 24, 34, 0.25), inset 0 0 20px rgba(255, 216, 107, 0.15);
+  }
+}
+
+@keyframes ide-scanline-sweep {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.85;
+  }
+  70% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(200%);
+    opacity: 0;
+  }
+}
+
+@keyframes ide-chrono-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ide-energy-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 4px rgba(255, 216, 107, 0.6));
+  }
+  50% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 12px rgba(255, 216, 107, 1)) drop-shadow(0 0 20px rgba(245, 158, 11, 0.8));
+  }
+}
+
+@keyframes ide-number-flicker {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(255, 216, 107, 0.7), 0 0 20px rgba(212, 175, 55, 0.4);
+  }
+  50% {
+    text-shadow: 0 0 16px rgba(255, 255, 255, 0.95), 0 0 30px rgba(255, 216, 107, 0.8);
+  }
+}
+
+.ide-hud-widget {
+  position: relative;
+  background: linear-gradient(135deg, rgba(22, 17, 30, 0.95) 0%, rgba(10, 8, 14, 0.98) 50%, rgba(26, 15, 28, 0.95) 100%);
+  border: 1.5px solid rgba(212, 175, 55, 0.5);
+  border-radius: 16px;
+  animation: ide-hud-border-glow 3.5s infinite ease-in-out;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  overflow: hidden;
+  user-select: none;
+}
+
+.ide-hud-widget::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 216, 107, 0.9) 50%, transparent 100%);
+  animation: shimmer 2.5s infinite linear;
+}
+
+.ide-scanline {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, rgba(212, 175, 55, 0.08) 50%, transparent 100%);
+  height: 35%;
+  animation: ide-scanline-sweep 4s infinite linear;
+}
+
+.ide-chrono-icon {
+  animation: ide-energy-pulse 2.2s infinite ease-in-out;
+}
+
+.ide-chrono-ring {
+  animation: ide-chrono-spin 14s infinite linear;
+}
+
+.ide-hazard-glow {
+  animation: ide-number-flicker 3s infinite ease-in-out;
+}
+
 /* Floating Animation */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
@@ -262,12 +372,17 @@ button, a, .interactive {
   border: none;
   cursor: pointer;
   box-shadow: 0 4px 12px var(--glow);
+  transition: transform 0.08s ease-out, background-color 0.08s ease-out, box-shadow 0.08s ease-out;
 }
 
 .btn-primary:hover {
   background: var(--accent-hover);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px var(--glow);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .btn-secondary {
@@ -278,12 +393,17 @@ button, a, .interactive {
   font-weight: 600;
   border: 1px solid var(--border);
   cursor: pointer;
+  transition: transform 0.08s ease-out, background-color 0.08s ease-out, border-color 0.08s ease-out;
 }
 
 .btn-secondary:hover {
   background: var(--bg-elevated);
   border-color: var(--border-hover);
   transform: translateY(-2px);
+}
+
+.btn-secondary:active {
+  transform: translateY(0) scale(0.98);
 }
 
 /* ----------------------------------------------------------------------------- */

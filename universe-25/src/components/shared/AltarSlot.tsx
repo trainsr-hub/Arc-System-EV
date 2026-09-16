@@ -35,7 +35,7 @@ export const AltarSlot: React.FC<AltarSlotProps> = ({
 }) => {
   return (
     <div
-      className={`p-6 rounded-2xl border flex flex-col items-center justify-center text-center transition-all duration-300 ${className} ${
+      className={`p-6 rounded-2xl border flex flex-col items-center justify-center text-center transition-[border-color,box-shadow,opacity] duration-100 ease-out ${className} ${
         disabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-[#ffd86b]/40 hover:shadow-gold-sm'
       }`}
     >
@@ -106,9 +106,9 @@ export const AltarSlot: React.FC<AltarSlotProps> = ({
       {/* Action Button or Children */}
       {onAction ? (
         <button
-          className="w-full px-5 py-2.5 rounded-xl font-cinzel font-bold text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-5 py-2.5 rounded-xl font-cinzel font-bold text-sm transition-[transform,opacity,background-color,box-shadow] duration-75 ease-out active:scale-[0.98] select-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
           disabled={disabled || loading}
-          onClick={!disabled && loading ? undefined : onAction}
+          onClick={disabled || loading ? undefined : onAction}
           style={{
             backgroundColor: loading ? undefined : '#ffd86b',
             color: loading ? '#ffffff' : '#000000',

@@ -1,18 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useGlobalStore } from '../../store/useGlobalStore';
-import { useCurrencyStore } from '../../store/useCurrencyStore';
-import { useInventoryStore } from '../../store/useInventoryStore';
 import { GameLayout } from '../../components/GameLayout';
-import { Users, Sparkles, List, Sliders, Dna } from 'lucide-react';
+import { Users, Sparkles, List, Sliders, Dna, Swords } from 'lucide-react';
 
 // Import styles for Black Hole physics and Gacha UI
 import './styles/juraGlobal.css';
 
-// Import tab views
-import { RosterView } from './components/tabs/RosterView';
-import { Tabs_Gacha } from './components/tabs/Tabs_Gacha';
-import { AllDinosView } from './components/tabs/AllDinosView';
-import { SettingsView } from './components/tabs/SettingsView';
+// Import modular tab views (1 folder per tab architecture)
+import { GachaTab } from './components/tabs/gacha/GachaTab';
+import { DinoDetailsTab } from './components/tabs/details/DinoDetailsTab';
+import { AllDinosTab } from './components/tabs/alldinos/AllDinosTab';
+import { SettingsTab } from './components/tabs/settings/SettingsTab';
+
+import { calcUserTop3Ferocity, calcUserTotalFerocity } from './core/calcGachaPool';
+import { rutGonTime } from './core/rutGonTime';
+import {
+  fetchArcResources,
+  persistArcResources,
+  fetchArcProgress,
+  persistArcProgress,
+  resetArcProgress
+} from '../../core/syncEngine';
+import type { DueDinoData } from './components/tabs/gacha/types';
 
 // Import raw game data directly for optimal Vite bundling and zero runtime fetch errors
 import dinoRawData from './data/dino.json';
@@ -54,21 +63,41 @@ interface LookupData {
 }
 
 interface UserProgress {
-  owned_dinos: Record<string, { number: number; rank: number }>;
+  owned_dinos: Record<string, { number: number; rank: number; ferocity?: number }>;
 }
 
-interface ResourceData {
-  elemental_time: Record<string, { amount: number; icon?: string }>;
-  orbs: Record<string, { amount: number }>;
+export interface ResourceData {
+  jurassic_time?: { amount: number; icon?: string; name?: string };
+  dna?: { amount: number; icon?: string; name?: string };
+  red_orbs?: { amount: number; icon?: string; name?: string };
+  [key: string]: any;
 }
 
-const LOCAL_STORAGE_PROGRESS_KEY = 'arc_jurassic_user_progress_v1';
-const LOCAL_STORAGE_RESOURCES_KEY = 'arc_jurassic_resources_v1';
+const LOCAL_STORAGE_CHEAT_KEY = 'arc_jurassic_free_buy_cheat_v1';
+const LOCAL_STORAGE_DUE_DINO_KEY = 'arc_jurassic_due_dino_v1';
+
+const normalizeResources = (raw: any): ResourceData => {
+  return {
+    jurassic_time: {
+      amount: Number(raw?.jurassic_time?.amount ?? raw?.elemental_time?.golden?.amount ?? 14400),
+      icon: raw?.jurassic_time?.icon || 'https://cdn.paleo.gg/games/jwtg/images/stats/speed.png',
+      name: 'Jurassic Time'
+    },
+    dna: {
+      amount: Number(raw?.dna?.amount ?? raw?.dna ?? raw?.elemental_time?.jurassic?.amount ?? 50000),
+      icon: raw?.dna?.icon || 'https://cdn.paleo.gg/games/jwtg/images/resource/dna.png',
+      name: 'DNA'
+    },
+    red_orbs: {
+      amount: Number(raw?.red_orbs?.amount ?? raw?.orbs?.red_orb?.amount ?? 50),
+      icon: raw?.red_orbs?.icon || 'https://cdn.paleo.gg/games/jwtg/images/hybrid-type/super-hybrid.png',
+      name: 'Red Orbs'
+    }
+  };
+};
 
 export const ArcJurassic: React.FC = () => {
   const setActiveApp = useGlobalStore((s) => s.setActiveApp);
-  const timeBalance = useCurrencyStore((s) => s.timeBalance);
-  const { discs } = useInventoryStore();
 
   // State for game data
   const [objects, setObjects] = useState<DinoObject[]>([]);
@@ -81,102 +110,160 @@ export const ArcJurassic: React.FC = () => {
     stats: {},
   });
   const [userProgress, setUserProgress] = useState<UserProgress>({ owned_dinos: {} });
-  const [myResources, setMyResources] = useState<ResourceData>({ elemental_time: {}, orbs: {} });
+  const [myResources, setMyResources] = useState<ResourceData>({
+    jurassic_time: { amount: 14400 },
+    dna: { amount: 50000 },
+    red_orbs: { amount: 50 }
+  });
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<'roster' | 'gacha' | 'alldinos' | 'settings'>('gacha');
+  const [view, setView] = useState<'gacha' | 'details' | 'alldinos' | 'settings'>('gacha');
   const [rosterTargetUuid, setRosterTargetUuid] = useState<string | null>(null);
-  const [initialTemptUuid, setInitialTemptUuid] = useState<string | null>(null);
+
+  // Due Dino persistence: lightweight frontend state (remembers unbought roll)
+  const [dueDino, setDueDino] = useState<DueDinoData | null>(() => {
+    try {
+      const saved = localStorage.getItem(LOCAL_STORAGE_DUE_DINO_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
   const [excludedIds, setExcludedIds] = useState<string[]>([]);
   const [top3Ferocity, setTop3Ferocity] = useState(0);
-
-  // Load game data synchronously from bundled JSON, with local cache fallback
-  useEffect(() => {
+  const [totalArmyFerocity, setTotalArmyFerocity] = useState(0);
+  const [isFreeBuyCheat, setIsFreeBuyCheat] = useState<boolean>(() => {
     try {
-      // 1. Process Dino Objects
-      const dinoObjects: DinoObject[] = Object.entries(dinoRawData).map(([uuid, dino]) => ({
-        uuid,
-        ...(dino as Omit<DinoObject, 'uuid'>)
-      }));
+      return localStorage.getItem(LOCAL_STORAGE_CHEAT_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
 
-      // 2. Load cached user progress or fallback to baseline
-      let initialProgress: UserProgress = userProgressRawData as UserProgress;
+  // Load game data from authoritative backend SQLite tiers with bundled fallback
+  useEffect(() => {
+    const initGameData = async () => {
       try {
-        const cachedProgress = localStorage.getItem(LOCAL_STORAGE_PROGRESS_KEY);
-        if (cachedProgress) {
-          initialProgress = JSON.parse(cachedProgress);
+        // 1. Process Dino Objects
+        const dinoObjects: DinoObject[] = Object.entries(dinoRawData).map(([uuid, dino]) => ({
+          uuid,
+          ...(dino as Omit<DinoObject, 'uuid'>)
+        }));
+
+        // 2. Authoritative Backend SQLite Progress Hydration
+        let initialProgress: UserProgress = userProgressRawData as UserProgress;
+        try {
+          const backendProgress = await fetchArcProgress();
+          if (backendProgress && Object.keys(backendProgress.owned_dinos || {}).length > 0) {
+            initialProgress = backendProgress as UserProgress;
+          } else {
+            await persistArcProgress(initialProgress as any);
+          }
+        } catch (err) {
+          console.warn('[ARC Jurassic] Backend SQLite progress hydration notice:', err);
         }
-      } catch (e) {
-        console.warn('Failed to parse cached user progress:', e);
-      }
 
-      // 3. Load cached resources or fallback to baseline
-      let initialResources: ResourceData = resourceRawData as ResourceData;
-      try {
-        const cachedResources = localStorage.getItem(LOCAL_STORAGE_RESOURCES_KEY);
-        if (cachedResources) {
-          initialResources = JSON.parse(cachedResources);
+        // 3. Authoritative Backend SQLite Resources Hydration
+        let initialResources: ResourceData = normalizeResources(resourceRawData);
+        try {
+          const backendResources = await fetchArcResources();
+          if (backendResources && Object.keys(backendResources).length > 0) {
+            initialResources = normalizeResources(backendResources);
+          } else {
+            await persistArcResources(initialResources as any);
+          }
+        } catch (err) {
+          console.warn('[ARC Jurassic] Backend SQLite resources hydration notice:', err);
         }
-      } catch (e) {
-        console.warn('Failed to parse cached resources:', e);
-      }
 
-      setObjects(dinoObjects);
-      setLookup(lookupRawData as unknown as LookupData);
-      setUserProgress(initialProgress);
-      setMyResources(initialResources);
+        setObjects(dinoObjects);
+        setLookup(lookupRawData as unknown as LookupData);
+        setUserProgress(initialProgress);
+        setMyResources(initialResources);
 
-      // 4. Calculate top 3 ferocity stats & excluded IDs
-      const calculatedExcludedIds: string[] = [];
-      const ferocities: number[] = [];
+        // 4. Calculate top 3 ferocity stats & excluded IDs
+        const calculatedExcludedIds: string[] = [];
 
-      for (const [uuid, data] of Object.entries(initialProgress.owned_dinos || {})) {
-        const dino = dinoObjects.find((d: DinoObject) => d.uuid === uuid);
-        if (dino) {
-          if (dino.evolutions?.length > 0) {
-            const limit = Math.pow(2, dino.evolutions.length - 1);
+        for (const [uuid, data] of Object.entries(initialProgress.owned_dinos || {})) {
+          const dino = dinoObjects.find((d: DinoObject) => (d.uuid || (d as any).id || (d as any).name) === uuid);
+          if (dino) {
+            const limit = Number((dino as any).maximum_number || Math.pow(2, Math.max(0, (dino.evolutions?.length || 1) - 1)));
             if ((data as any).number >= limit) {
               calculatedExcludedIds.push(uuid);
             }
           }
-
-          const rank = (data as any).rank || 0;
-          if (rank > 0) {
-            const targetLevel = rank * 10;
-            const evo = dino.evolutions?.find((e: any) => e.level === targetLevel);
-            if (evo) {
-              ferocities.push(Math.floor((evo.damage || 0) + ((evo.health || 0) / 3.2)));
-            }
-          }
         }
+
+        const top3 = calcUserTop3Ferocity(dinoObjects, initialProgress);
+        const totalFero = calcUserTotalFerocity(dinoObjects, initialProgress);
+
+        setExcludedIds(calculatedExcludedIds);
+        setTop3Ferocity(top3);
+        setTotalArmyFerocity(totalFero);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error initializing ARC Jurassic game data:", error);
+        setLoading(false);
       }
+    };
 
-      ferocities.sort((a, b) => b - a);
-      const top3 = ferocities.slice(0, 3).reduce((a, b) => a + b, 0);
-
-      setExcludedIds(calculatedExcludedIds);
-      setTop3Ferocity(top3);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error initializing ARC Jurassic game data:", error);
-      setLoading(false);
-    }
+    initGameData();
   }, []);
 
-  const handleUpdateProgress = (prog: UserProgress) => {
+  const handleUpdateProgress = async (prog: UserProgress) => {
     setUserProgress(prog);
+    const totalFero = calcUserTotalFerocity(objects, prog);
+    const top3 = calcUserTop3Ferocity(objects, prog);
+    setTotalArmyFerocity(totalFero);
+    setTop3Ferocity(top3);
+
     try {
-      localStorage.setItem(LOCAL_STORAGE_PROGRESS_KEY, JSON.stringify(prog));
+      await persistArcProgress(prog as any);
     } catch (e) {
-      console.warn('Failed to save progress to localStorage:', e);
+      console.warn('Failed to save progress to SQLite backend:', e);
     }
   };
 
-  const handleUpdateResources = (res: ResourceData) => {
-    setMyResources(res);
+  const handleResetCollection = async () => {
+    setUserProgress({ owned_dinos: {} });
+    setTotalArmyFerocity(0);
+    setTop3Ferocity(0);
     try {
-      localStorage.setItem(LOCAL_STORAGE_RESOURCES_KEY, JSON.stringify(res));
+      await resetArcProgress();
     } catch (e) {
-      console.warn('Failed to save resources to localStorage:', e);
+      console.warn('Failed to reset progress in SQLite backend:', e);
+    }
+  };
+
+  const handleUpdateResources = async (res: ResourceData) => {
+    const normalized = normalizeResources(res);
+    setMyResources(normalized);
+    try {
+      await persistArcResources(normalized as any);
+    } catch (e) {
+      console.warn('Failed to save resources to SQLite backend:', e);
+    }
+  };
+
+  const handleSetDueDino = (data: DueDinoData | null) => {
+    setDueDino(data);
+    try {
+      if (data) {
+        localStorage.setItem(LOCAL_STORAGE_DUE_DINO_KEY, JSON.stringify(data));
+      } else {
+        localStorage.removeItem(LOCAL_STORAGE_DUE_DINO_KEY);
+      }
+    } catch (e) {
+      console.warn('Failed to save due dino to localStorage:', e);
+    }
+  };
+
+  const handleToggleFreeBuyCheat = (enabled: boolean) => {
+    setIsFreeBuyCheat(enabled);
+    try {
+      localStorage.setItem(LOCAL_STORAGE_CHEAT_KEY, String(enabled));
+    } catch (e) {
+      console.warn('Failed to save cheat state to localStorage:', e);
     }
   };
 
@@ -203,63 +290,98 @@ export const ArcJurassic: React.FC = () => {
       showBackButton={true}
       backButton="Golden Hour"
       onBackClick={handleBackToHub}
-      globalInfo={{
-        goldenHours: timeBalance / 3600, // Convert seconds to hours
-        discs: discs
-      }}
+      headerRight={
+        <div className="flex items-center gap-3 text-xs font-mono flex-wrap">
+          {/* Total Army Ferocity Indicator */}
+          <div className="flex items-center gap-2 bg-[#161208] px-3.5 py-1.5 rounded-xl border border-amber-500/50 text-xs font-mono font-bold text-amber-300 shadow-[0_0_12px_rgba(255,215,0,0.18)]">
+            <Swords className="w-4 h-4 text-amber-400" />
+            <span>⚡{totalArmyFerocity.toLocaleString()} Total Fero</span>
+          </div>
+
+          {/* Dedicated Resource 1: Jurassic Time */}
+          <div className="flex items-center gap-2 bg-[#14101c] px-3.5 py-1.5 rounded-xl border border-[#2e2638] text-xs font-mono font-bold text-sky-400 shadow-sm">
+            <img src={myResources.jurassic_time?.icon} className="w-4 h-4 object-contain" alt="Jurassic Time" />
+            <span>{rutGonTime(myResources.jurassic_time?.amount || 0, "seconds")}</span>
+          </div>
+
+          {/* Dedicated Resource 2: DNA */}
+          <div className="flex items-center gap-2 bg-[#14101c] px-3.5 py-1.5 rounded-xl border border-[#2e2638] text-xs font-mono font-bold text-[#ffd86b] shadow-sm">
+            <img src={myResources.dna?.icon} className="w-4 h-4 object-contain" alt="DNA" />
+            <span>{(myResources.dna?.amount || 0).toLocaleString()} DNA</span>
+          </div>
+
+          {/* Dedicated Resource 3: Red Orbs */}
+          <div className="flex items-center gap-2 bg-[#1c1424] px-3.5 py-1.5 rounded-xl border border-rose-900/60 text-xs font-mono font-bold text-rose-400 shadow-sm">
+            <img src={myResources.red_orbs?.icon} className="w-4 h-4 object-contain" alt="Red Orbs" />
+            <span>{myResources.red_orbs?.amount || 0} Orbs</span>
+          </div>
+        </div>
+      }
       tabs={[
-        { id: 'roster', label: 'Roster', icon: <Users className="w-4 h-4" /> },
         { id: 'gacha', label: 'Gacha', icon: <Sparkles className="w-4 h-4" /> },
+        { id: 'details', label: 'Dino Details', icon: <Users className="w-4 h-4" /> },
         { id: 'alldinos', label: 'List of Dinos', icon: <List className="w-4 h-4" /> },
         { id: 'settings', label: 'Settings', icon: <Sliders className="w-4 h-4" /> },
       ]}
       activeTab={view}
-      onTabChange={(id) => setView(id as 'roster' | 'gacha' | 'alldinos' | 'settings')}
+      onTabChange={(id) => setView(id as 'gacha' | 'details' | 'alldinos' | 'settings')}
     >
-      {view === 'roster' && (
-        <RosterView
-          objects={objects}
-          lookup={lookup}
-          userProgress={userProgress}
-          initialSelectedUuid={rosterTargetUuid}
-          onBack={() => setView('gacha')}
-        />
-      )}
-
+      {/* TAB 1: GACHA */}
       {view === 'gacha' && (
-        <Tabs_Gacha
+        <GachaTab
           objects={objects}
           lookup={lookup}
           userFerocity={Math.max(top3Ferocity, 200)}
           excludedIds={excludedIds}
           userProgress={userProgress}
           myResources={myResources}
-          initialTemptUuid={initialTemptUuid}
+          isFreeBuyCheat={isFreeBuyCheat}
+          dueDino={dueDino}
+          onSetDueDino={handleSetDueDino}
           onUpdateResources={handleUpdateResources}
           onUpdateProgress={handleUpdateProgress}
-          onWriteTempt={async (uuid) => { setInitialTemptUuid(uuid); }}
-          onBuySuccess={(uuid) => {
-            setRosterTargetUuid(uuid);
-            setView('roster');
+          onBuySuccess={() => {
+            // Stay in gacha tab
+            setView('gacha');
           }}
         />
       )}
 
-      {view === 'alldinos' && (
-        <AllDinosView
+      {/* TAB 2: DINO DETAILS */}
+      {view === 'details' && (
+        <DinoDetailsTab
+          uuid={rosterTargetUuid || ''}
           objects={objects}
           lookup={lookup}
           userProgress={userProgress}
-          onBack={() => setView('gacha')}
+          onBack={() => setView('alldinos')}
+          onGoToGacha={() => setView('gacha')}
         />
       )}
 
+      {/* TAB 3: ALL DINOS */}
+      {view === 'alldinos' && (
+        <AllDinosTab
+          objects={objects}
+          lookup={lookup}
+          userProgress={userProgress}
+          onSelectDino={(uuid) => {
+            setRosterTargetUuid(uuid);
+            setView('details'); // Tab 3 click -> Tab 2 Details per Manager's vision
+          }}
+        />
+      )}
+
+      {/* TAB 4: SETTINGS */}
       {view === 'settings' && (
-        <SettingsView
+        <SettingsTab
           userProgress={userProgress}
           myResources={myResources}
+          isFreeBuyCheat={isFreeBuyCheat}
           onUpdateProgress={handleUpdateProgress}
+          onResetCollection={handleResetCollection}
           onUpdateResources={handleUpdateResources}
+          onToggleFreeBuyCheat={handleToggleFreeBuyCheat}
         />
       )}
     </GameLayout>

@@ -23,7 +23,7 @@ export const SubTabs: React.FC<SubTabProps> = ({ tabs, activeTabId, onTabChange,
             key={tab.id}
             type="button"
             onClick={() => onTabChange(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs md:text-sm font-cinzel font-bold transition-all duration-200 cursor-pointer ${
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs md:text-sm font-cinzel font-bold transition-[color,background-color,border-color,box-shadow,transform] duration-75 ease-out select-none cursor-pointer active:scale-[0.98] ${
               isActive
                 ? 'bg-gradient-to-r from-[#1a1424] to-[#261b36] text-[#ffd86b] border-b-2 border-[#d4af37] shadow-gold-sm'
                 : 'hover:bg-[#1a1a2e]/40 text-[#9c93a8] hover:text-white'

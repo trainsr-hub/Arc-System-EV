@@ -1,0 +1,33 @@
+/* ============================================================================ */
+/* GACHA ANIMATION WORKER STYLES                                               */
+/* Seamless, Transparent, Borderless HTML Animation Player                      */
+/* ============================================================================ */
+
+.gacha-animation-worker-container {
+    width: 100%;
+    min-height: 580px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: visible;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    animation: gachaAnimWorkerFadeIn 0.35s ease-out;
+}
+
+@keyframes gachaAnimWorkerFadeIn {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.gacha-animation-worker-iframe {
+    width: 100%;
+    height: 580px;
+    border: none;
+    outline: none;
+    background: transparent;
+    display: block;
+    overflow: visible;
+}

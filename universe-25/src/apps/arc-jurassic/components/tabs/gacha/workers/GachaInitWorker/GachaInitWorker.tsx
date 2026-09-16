@@ -9,7 +9,7 @@ import './GachaInitWorker.css';
  * Worker: GachaInitWorker
  * Responsibility: Renders the idle Gacha Nexus view:
  * - Left Side: Apex Vanguard (User's Top 3 Dinos) via GachaTopDinosWorker
- * - Center: Idle Black Hole Accretion Stage + Roll Wager Selector + Summon Button
+ * - Center: Idle Black Hole Accretion Stage + Summon Button + Roll Wager Dropdown (below button)
  * - Right Side: Possible Outcomes Pool via GachaOutcomesWorker
  */
 export const GachaInitWorker: React.FC<GachaInitWorkerProps> = ({
@@ -26,6 +26,7 @@ export const GachaInitWorker: React.FC<GachaInitWorkerProps> = ({
     const [multiplier, setMultiplier] = useState<number>(1);
 
     const multiplierOptions = [1, 2, 3, 4, 8, 16];
+    const feroIcon = lookup?.stats?.ferocity || 'https://cdn.paleo.gg/games/jwtg/images/stats/ferocity.png';
 
     return (
         <div className="gacha-init-worker-container">
@@ -56,7 +57,28 @@ export const GachaInitWorker: React.FC<GachaInitWorkerProps> = ({
                 </div>
             </div>
 
-            {/* Center Bottom: Pre-Roll Multiplier Gamble Dropdown Selector */}
+            {/* Center: Summon Dinosaur Button (Primary Action) */}
+            <button
+                type="button"
+                className="dino-summon-button"
+                onClick={() => onStartSummon(multiplier)}
+                disabled={!dueDino && possibleOutcomes.length === 0}
+            >
+                {dueDino ? (
+                    <span className="flex items-center justify-center gap-2">
+                        <img src={feroIcon} className="w-4 h-4 object-contain" alt="Due" />
+                        <span>View Pending Due Specimen (Must Purchase)</span>
+                    </span>
+                ) : possibleOutcomes.length === 0 ? (
+                    'No Dino in Ferocity Pool'
+                ) : multiplier > 1 ? (
+                    `Summon ${multiplier}x Dinosaurs (Gacha Gamble)`
+                ) : (
+                    'Summon Dinosaur (Gacha)'
+                )}
+            </button>
+
+            {/* Center: Pre-Roll Multiplier Gamble Dropdown Selector (Placed BELOW Gacha Button) */}
             <div className="gacha-multiplier-bar">
                 <span className="gacha-multiplier-label">Roll Wager:</span>
                 <div className="gacha-multiplier-select-wrapper">
@@ -75,22 +97,6 @@ export const GachaInitWorker: React.FC<GachaInitWorkerProps> = ({
                     <ChevronDown className="gacha-select-chevron" />
                 </div>
             </div>
-
-            {/* Summon Dinosaur Button with Selected Multiplier or Due Specimen Redirect */}
-            <button
-                type="button"
-                className="dino-summon-button"
-                onClick={() => onStartSummon(multiplier)}
-                disabled={!dueDino && possibleOutcomes.length === 0}
-            >
-                {dueDino
-                    ? '⚡ View Pending Due Specimen (Must Purchase)'
-                    : possibleOutcomes.length === 0
-                    ? 'No Dino in Ferocity Pool'
-                    : multiplier > 1
-                    ? `Summon ${multiplier}x Dinosaurs (Gacha Gamble)`
-                    : 'Summon Dinosaur (Gacha)'}
-            </button>
         </div>
     );
 };

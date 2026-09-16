@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useGlobalStore } from '../../store/useGlobalStore';
 import { GameLayout } from '../../components/GameLayout';
-import { Users, Sparkles, List, Sliders, Dna, Swords } from 'lucide-react';
+import { Users, Sparkles, List, Sliders, Dna } from 'lucide-react';
 
 // Import styles for Black Hole physics and Gacha UI
 import './styles/juraGlobal.css';
@@ -294,8 +294,12 @@ export const ArcJurassic: React.FC = () => {
         <div className="flex items-center gap-3 text-xs font-mono flex-wrap">
           {/* Total Army Ferocity Indicator */}
           <div className="flex items-center gap-2 bg-[#161208] px-3.5 py-1.5 rounded-xl border border-amber-500/50 text-xs font-mono font-bold text-amber-300 shadow-[0_0_12px_rgba(255,215,0,0.18)]">
-            <Swords className="w-4 h-4 text-amber-400" />
-            <span>⚡{totalArmyFerocity.toLocaleString()} Total Fero</span>
+            <img
+              src="https://cdn.paleo.gg/games/jwtg/images/stats/ferocity.png"
+              className="w-4 h-4 object-contain"
+              alt="Ferocity"
+            />
+            <span>{totalArmyFerocity.toLocaleString()} Total Fero</span>
           </div>
 
           {/* Dedicated Resource 1: Jurassic Time */}
